@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard RFID – Entradas y Salidas</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    #contenedor {
+        display: flex;
+        gap: 20px;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        width: 45%;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+    .entrada {
+        color: green;
+        font-weight: bold;
+    }
+    .salida {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>📦 Seguimiento RFID – Entradas y Salidas</h1>
+
+<div id="contenedor">
+    <div class="card">
+        <h2>Entradas</h2>
+        <table id="tablaEntradas">
+            <tr><th>UID</th><th>Hora</th></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Salidas</h2>
+        <table id="tablaSalidas">
+            <tr><th>UID</th><th>Hora</th></tr>
+        </table>
+    </div>
+</div>
+
+<br><hr><br>
+
+<div class="card" style="width: 95%;">
+    <h2>Historial Completo</h2>
+    <table id="tablaHistorial">
+        <tr><th>UID</th><th>Evento</th><th>Hora</th></tr>
+    </table>
+</div>
+
+<script>
+// CONEXIÓN CON EVENT STREAM (SSE)
+const evtSource = new EventSource("/stream");
+
+evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const uid = data.uid;
+    const tipo = data.tipo; // "entrada" o "salida"
+    const hora = data.hora;
+
+    // Historial
+    let tablaHistorial = document.getElementById("tablaHistorial");
+    let filaH = tablaHistorial.insertRow();
+    filaH.insertCell(0).innerHTML = uid;
+    filaH.insertCell(1).innerHTML = tipo;
+    filaH.insertCell(2).innerHTML = hora;
+
+    // Entradas
+    if (tipo === "entrada") {
+        let tabla = document.getElementById("tablaEntradas");
+        let fila = tabla.insertRow();
+        fila.insertCell(0).innerHTML = uid;
+        fila.insertCell(1).innerHTML = hora;
+    }
+
+    // Salidas
+    if (tipo === "salida") {
+        let tabla = document.getElementById("tablaSalidas");
+        let fila = tabla.insertRow();
+        fila.insertCell(0).innerHTML = uid;
+        fila.insertCell(1).innerHTML = hora;
+    }
+};
+</script>
+
+</body>
+</html>
